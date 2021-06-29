@@ -26,7 +26,7 @@ pipeline{
                     try{
                         rtUpload (
                             serverId: "myjfrog"
-                            spec:'''
+                            spec: '''
                             {
                                 "files": [
                                     "pattern": "target/*.war",
