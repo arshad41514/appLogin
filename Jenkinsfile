@@ -1,80 +1,61 @@
-properties([pipelineTriggers([githubPush()])])
+pipeline{
+    agent any
 
-pipeline {
-    agent {label "slave555"}
-    
-    stages {
-        
-        stage ("git clone project url") {
-            steps {
-                git url: 'https://github.com/tejesh555/applogin.git'
-                sh "ls -all"
+    stages{
+        stage ("git clone"){
+            steps{
+                git credentialsId: '4f383b42-16fd-447c-93db-38a46cdc1519', url: 'https://github.com/arshad41514/Java_Repo.git'
             }
         }
 
-        stage ("build") {
-            steps {
-                sh "mvn clean install"
+        stage ("build"){
+            steps{
+                sh 'mvn -f devops_jenkins/pom.xml clean install'
             }
         }
 
-        stage ("test") {
-            steps {
-                echo "this is related to testing"
+        stage ("test"){
+            steps{
+                echo "testing"
             }
         }
 
-        stage ("publish") {
-            steps {
-                script {
-                    try {
-                        rtUpload ( 
-                            serverId: 'myjfrog',
-                            spec: '''
-                                  {
-                                      "files": [
-                                          {
-                                              "pattern": "target/*.war",
-                                              "target": "myapp/"
-                                          }
-                                      ]
-                                  }
+        stage ("publish"){
+            steps{
+                script{
+                    try{
+                        rtUpload (
+                            serverId: "myjfrog"
+                            spec:'''
+                            {
+                                "files": [
+                                    "pattern": "target/*.war",
+                                    "target": "myapp/"
+                                ]
+                            }
                             ''',
-                            buildName: "${JOB_NAME}",
+                            buildName: "${JOB_NAME}"
                             buildNumber: "${BUILD_NUMBER}"
                         )
-                    }
-                    catch(err) {
-                        println "unable to push the artifact kindly check the configuration"
-                        println err.getMessage()
+                    }catch(error){
+                        println "unable to push artifactory to jfrog"
+                        pringln error.getMesage()
                     }
                 }
             }
         }
 
-        stage ("deploy") {
-            steps {
-              script{
-                sh (
-                  '''
-                   jar_file=$(ls target/*.war)
-                   ansible-playbook -i /home/devops/ansible1/tom_host /home/devops/ansible1/cd.yml --extra-vars artifact_version=$jar_file
-                   '''
-                    )
-              }
+        stage ("deploy"){
+            steps{
+                echo "ansible-playbook -i inventory e2e.yml"
             }
         }
-
+ 
     }
 
-    post {
-        always {
-             /*emailext body: '''this is status of
-
-job: "${JOB_NAME}"
-url: "${BUILD_URL}"''', subject: 'Status of "{$JOB_NAME}"', to: 'tejesh2311@gmail.com'
-        } */
-        echo "post action"
+    post{
+        success{
+            build job: 'Project_1'
         }
     }
 }
