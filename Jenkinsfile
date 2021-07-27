@@ -60,7 +60,7 @@ pipeline{
         
         stage ("deploy"){
             steps{
-                sh 'ansible-playbook -i tom_hosts tom.yml'
+                sh 'ansible-playbook -i /home/devops/workspace/e2e_java/ansible/tom_hosts /home/devops/workspace/e2e_java/ansible/tom.yml'
             }
         }        
     }
