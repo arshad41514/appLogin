@@ -28,7 +28,7 @@ pipeline{
             }
         }
         
-        /*stage ("publish") {
+        /*stage ("publish") { 
             steps {
                 sh 'cd java_e2e'
                 script {
